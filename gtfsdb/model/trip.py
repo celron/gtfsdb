@@ -1,12 +1,12 @@
 import logging
-log = logging.getLogger(__name__)
 
+from gtfsdb import config
+from gtfsdb.model.base import Base
 from sqlalchemy import Column
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Integer, String
 
-from gtfsdb import config
-from gtfsdb.model.base import Base
+log = logging.getLogger(__name__)
 
 
 class Trip(Base):
@@ -61,6 +61,14 @@ class Trip(Base):
                 log.warn("invalid trip: {0} only has {1} stop_time record (i.e., maybe the stops are coded as "
                          "non-public, and thus their stop time records didn't make it into the gtfs)"
                          .format(t.trip_id, t.trip_len))
+
+    @classmethod
+    def query_trip(cls, session, trip_id, schema=None):
+        """ return a trip via trip_id """
+        if schema:
+            Trip.set_schema(schema)
+        ret_val = session.query(Trip).filter(Trip.trip_id==trip_id).one()
+        return ret_val
 
     @property
     def start_stop(self):

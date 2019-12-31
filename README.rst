@@ -15,25 +15,27 @@ Supported Databases
 - MySQL  - tested
 - SQLite - tested
 
+
 GTFS (General Transit Feed Specification) Database
 ==================================================
 
 Python code that will load GTFS data into a relational database, and SQLAlchemy ORM bindings to the GTFS tables in the gtfsdb. 
+The gtfsdb project's focus is on making GTFS data available in a programmatic context for software developers. The need for the
+gtfsdb project comes from the fact that a lot of developers start out a GTFS-related effort by first building some amount of code
+to read GTFS data (whether that's an in-memory loader, a database loader, etc...);  GTFSDB can hopefully reduce the need for such
+drudgery, and give developers a starting point beyond the first step of dealing with GTFS in .csv file format.
 
-The gtfsdb project's focus is on making GTFS data available in a programmatic context for software developers. The need for the gtfsdb project comes from the fact that a lot of developers start out a GTFS-related effort by first building some amount of code to read GTFS data (whether that's an in-memory loader, a database loader, etc...);  GTFSDB can hopefully reduce the need for such drudgery, and give developers a starting point beyond the first step of dealing with GTFS in .csv file format.
-
-Available on pypi: https://pypi.python.org/pypi/gtfsdb
+(Pretty old stuff) available on pypi: https://pypi.python.org/pypi/gtfsdb
 
 
 Install and use via the gtfsdb source tree:
 ==========================================
 
-0. Install Python 2.7, easy_install (https://pypi.python.org/pypi/setuptools) and zc.buildout (https://pypi.python.org/pypi/zc.buildout/2.5.2) on your system...
+1. Install Python 2.7 (or 3.x), easy_install (https://pypi.python.org/pypi/setuptools) and zc.buildout (https://pypi.python.org/pypi/zc.buildout/2.5.2) on your system...
 1. git clone https://github.com/OpenTransitTools/gtfsdb.git
-2. cd gtfsdb
-3. buildout install prod
-   NOTE: if you're using postgres, do a 'buildout install prod postgresql'
-4. bin/gtfsdb-load --database_url <db url>  <gtfs file | url>
+1. cd gtfsdb
+1. buildout install prod -- NOTE: if you're using postgres, do a 'buildout install prod postgresql'
+1. bin/gtfsdb-load --database_url <db url>  <gtfs file | url>
    examples:
    - bin/gtfsdb-load --database_url sqlite:///gtfs.db gtfsdb/tests/large-sample-feed.zip
    - bin/gtfsdb-load --database_url sqlite:///gtfs.db http://developer.trimet.org/schedule/gtfs.zip
@@ -51,13 +53,13 @@ If you are on windows, you most likely have to find and install a pre-compiled v
 
 
 Install Steps (on Windows):
----------------------------
+===========================
     0. Have a db - docs and examples assume Postgres/PostGIS installed
        http://www.postgresql.org/download/windows
        http://postgis.refractions.net/download/windows/
 
     1. Python2.7 - http://www.python.org/download/releases/2.7.6/ (python-2.7.6.msi)
-       NOTE: see this for setting env variables correctly: http://blog.sadphaeton.com/2009/01/20/python-development-windows-part-1installing-python.html
+       NOTE: see this for setting env variables correctly: https://docs.python.org/3/using/windows.html#excursus-setting-environment-variables
 
     2a. Install Setup Tools (easy_install) https://pypi.python.org/pypi/setuptools#windows-8-powershell
     2b. easy_install zc.buildout
@@ -72,11 +74,21 @@ Install Steps (on Windows):
 
     7. bin/gtfsdb-load --database_url <db url>  <gtfs file | url>
 
-NEWS:
------
-|
-NOTE: May 2016 ... for folks with legacy gtfsdb databases, two new columns were recently added. These two statements will keep you running against the new code w/out having to fully recreate your database from scratch:
- - ALTER TABLE routes ADD COLUMN min_headway_minutes integer;
- - ALTER TABLE calendar ADD COLUMN service_desc character varying(255); 
-|
 
+Example Query:
+==============
+
+-- get first stop time of each trip for route_id 1
+select *
+from trips t, stop_times st
+where t.route_id = '1'
+and t.trip_id = st.trip_id
+and st.stop_sequence = 1
+
+
+-- get agency name and number of routes 
+select a.agency_name, a.agency_id, count(r.route_id)
+from routes r, agency a
+where r.agency_id = a.agency_id
+group by a.agency_id, a.agency_name
+order by 3 desc

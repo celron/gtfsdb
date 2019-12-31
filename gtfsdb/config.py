@@ -1,4 +1,7 @@
-from ConfigParser import ConfigParser
+try:
+    from ConfigParser import ConfigParser
+except ImportError:
+    from configparser import ConfigParser
 import logging.config
 import os
 from pkg_resources import resource_filename  # @UnresolvedImport
@@ -25,28 +28,3 @@ DATASOURCE_DERIVED = 3
 
 '''Geometry constants'''
 SRID = 4326
-
-'''Order list of class names, used for creating & populating tables'''
-SORTED_CLASS_NAMES = [
-    'RouteType',
-    'RouteFilter',
-    'FeedInfo',
-    'Agency',
-    'Block',
-    'Calendar',
-    'CalendarDate',
-    'Route',
-    'RouteDirection',
-    'Stop',
-    'StopFeature',
-    'Transfer',
-    'Shape',
-    'Pattern',
-    'Trip',
-    'StopTime',
-    'RouteStop',
-    'Frequency',
-    'FareAttribute',
-    'FareRule',
-    'UniversalCalendar',
-]
